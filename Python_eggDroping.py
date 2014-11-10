@@ -20,4 +20,4 @@ def drop(n,k):
 	print top_down(n,k)
 	#print bottom_up(n,k)
 
-drop(100,3)
+drop(100,4)

@@ -20,4 +20,4 @@ def bsts(n):
 import sys
 sys.setrecursionlimit(10000)
 
-bsts(5)
+bsts(1000)

@@ -43,4 +43,4 @@ def max_wiz(list):
 		print "Top down:"
 		print (result, path)
 
-max_wiz([])
+max_wiz([1,2,3,4,5,6,7])
