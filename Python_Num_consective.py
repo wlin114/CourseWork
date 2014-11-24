@@ -29,5 +29,5 @@ def num_yes(n):
 		Bottom_up(n)
 	return int(pow(2, n)) - top_Down_cache[n], int(pow(2, n)) - bottom_Up_cache[n]
 
-print num_yes(5)
-print num_no(5)
+print num_yes(7)
+print num_no(7)
