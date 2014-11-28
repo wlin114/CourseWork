@@ -1,11 +1,9 @@
 graph = {"A": ["B"], "B": ["C", "D", "E"], "C": ["E"], "D": ["A", "E"]}
 #graph = {"A": ["B", "C"], "B": ["D"],"C":["E"], "D": ["C"], "E":["A"],  "F":["C"]}
-graph = {"A": ["B", "C"], "B":["D"], "C":["E"], "D":["E","F"], "E":[], "F":["C"]}
+#graph = {"A": ["B", "C"], "B":["D"], "C":["E"], "D":["E","F"], "E":[], "F":["C"]}
 distance = {"A":0, "B":-1, "C":-1, "D":-1, "E":-1, "F":-1}
+path = {"B":-1, "C":-1, "D":-1, "E":-1, "F":-1}
 q = ["A"]
-visit = []
-back = []
-cross = []
 
 def bfs():
 	while q!=[]:
@@ -15,8 +13,13 @@ def bfs():
 				if distance[i] < 0:
 					distance[i] = distance[head] + 1
 					q.append(i)
+					path[i] = head
 				elif distance[head] > distance[i] + 1:
-					back.append((head,"->",i))
+					return head,i
 
-bfs() 
-print "back: ", back
+node, head = bfs()
+ans = node + "->" + head
+while node in path:
+    ans = path[node] + "->" + ans
+    node = path[node]
+print ans
