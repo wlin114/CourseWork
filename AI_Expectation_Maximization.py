@@ -1,6 +1,6 @@
 from __future__ import division
 from math import log10
-a = open("hw2dataset_70.txt")
+a = open("hw2dataset_10.txt")
 b = []
 for x in a:
 	if len(x) == 7:
@@ -19,11 +19,15 @@ male, w_male, w_female, h_male, h_female = 0, 0, 0, 0, 0
 
 while(improvement > 0.001):
 	print counter
+	counter+=1
 
 	pre_m = male
 	#inititalize
 	male, w_male, w_female, h_male, h_female = 0,0,0,0,0
-
+	n_w_m = (p_wm * p_male) / ((p_wm * p_male) + (p_wf * (1-p_male)))
+	n_h_m = (p_hm * p_male) / ((p_hm * p_male) + (p_hf * (1-p_male)))
+	n_w_f = (p_wf * (1-p_male)) / (p_wf * (1-p_male) + p_wm * p_male)
+	n_h_f = (p_hf * (1-p_male)) / (p_hf * (1-p_male) + p_hm * p_male)
 	for i in b:
 		if i[0] == '0':
 			male += 1
@@ -40,29 +44,28 @@ while(improvement > 0.001):
 			if i[1] == '0':
 				if i[2] == '0':
 					#When gender is missing, weight and height are 0
-					#male is increased by P(G=0 | W=0, H=0)
+					#male is #(counter for 000)
 					male += g_00
-					#w_male is P(W,G | W)
-					w_male += (p_wm * p_male) / ((p_wm * p_male) + (p_wf * (1-p_male)))
-					h_male += (p_hm * p_male) / ((p_hm * p_male) + (p_hf * (1-p_male)))
-					w_female += (p_wf * (1-p_male)) / (p_wf * (1-p_male) + p_wm * p_male)
-					h_female += (p_hf * (1-p_male)) / (p_hf * (1-p_male) + p_hm * p_male)
+					#w_male is #(counter for x00) 
+					w_male += n_w_m
+					h_male += n_h_m
+					w_female += n_w_f
+					h_female += n_h_f
 
 				else:
 					male += g_01
-					w_male += p_wm * p_male
-					w_female += p_wf * (1 - p_male)
+					w_male += n_w_m
+					w_female += n_w_f
 			else:
 				if i[2] == '0':
 					male += g_10
-					h_male += p_hm * p_male
-					h_female += p_hf * (1-p_male)
+					h_male += n_h_m
+					h_female += n_h_f
 				else:
 					male += g_11
 
 	female = 200 - male
 	print  male, female, w_male, h_male, w_female, h_female
-
 	#updating for following probs:
 	p_male = male/(200)
 	p_wm = w_male/(male)
@@ -71,9 +74,6 @@ while(improvement > 0.001):
 	p_hf = h_female/(female)
 
 	print p_male, p_wm, p_wf, p_hm, p_hf
-
-	#this log is wrong 
-	#improvement = male * log10(p_male) + female * log10(1-p_male) + w_male * log10(p_wm) + w_male * log10(1-p_male) + w_female * log10(p_wf) + w_female * log10(1-p_wf) + h_male * log10(p_hm) + h_male * log10(1- p_hm) + h_female* log10(p_hf) + h_female * log10(1-p_hf)
 
 	#updating for following probs
 	g_00 = (p_male * p_wm * p_hm )/((p_male * p_wm * p_hm )+((1 - p_male ) * p_wf * p_hf ))
@@ -96,8 +96,6 @@ while(improvement > 0.001):
 	print "P(H|M): ", p_hm
 	print "P(H|F): ", p_hf
 	print "P(G|H,F)", g_00
-
-	counter+=1
 
 	improvement = abs(male - pre_m)
 	print improvement
