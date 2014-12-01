@@ -63,11 +63,6 @@ while(improvement > 0.001):
 	female = 200 - male
 	print  male, female, w_male, h_male, w_female, h_female
 
-	pre_pm = p_male
-	pre_pwm = p_wm
-	pre_phm = p_hm
-	pre_pwf = p_wf
-	pre_phf = p_hf
 	#updating for following probs:
 	p_male = male/(200)
 	p_wm = w_male/(male)
