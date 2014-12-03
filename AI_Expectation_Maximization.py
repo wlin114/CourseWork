@@ -1,6 +1,6 @@
 from __future__ import division
 from math import log10
-a = open("hw2dataset_70.txt")
+a = open("hw2dataset_100.txt")
 b = []
 for x in a:
 	if len(x) == 7:
@@ -13,33 +13,34 @@ counter, improvement = 1, float('inf')
 #p_male ,p_wm, p_hm, p_wf, p_hf = 0.01,0.01,0.01,0.99,0.99
 p_male ,p_wm, p_hm, p_wf, p_hf = 0.7,0.8,0.7,0.4,0.3
 
+#initial P(G|W,H) from given starting points
 g_00 = (p_male * p_wm * p_hm )/((p_male * p_wm * p_hm )+((1 - p_male ) * p_wf * p_hf ))
-
 g_01 = (p_male * p_wm * ( 1 - p_hm ))/((p_male * p_wm * ( 1 - p_hm )) +((1 - p_male) * p_wf * (1 - p_hf)))
-
 g_10 = (p_male * (1 - p_wm) * p_hm )/((p_male * (1 - p_wm) * p_hm )+((1 - p_male) * (1 - p_wf) * p_hf))
-
 g_11 = (p_male * (1 - p_wm) * (1 - p_hm))/(p_male * (1 - p_wm) * (1 - p_hm)+((1 - p_male) * (1 - p_wf) * (1 - p_hf)))
 
 #Counters
 #male: number of male
 #w_male: number of (weight, gender | weight)
 #h_male: same to above
-male, w_male, w_female, h_male, h_female = 200 * p_male, 0, 0, 0, 0
-
-likelihood = 0
+#initial likelihood scores
+male = 200*p_male
+female = 200 - male
+w_male, w_female, h_male, h_female = male*p_wm, female*p_wf, male*p_hm, female*p_hf
+likelihood = log10(male)*log10(female)+log10(p_wm*male)*log10((1-p_wm)*male)+log10(p_wf*female)*log10((1-p_wf)*female)+log10(p_hm*male)*log10((1-p_hm)*male)+log10(p_hf*female)*log10((1-p_hf)*female)
 
 while(improvement > 0.0001):
 	print counter
 	counter+=1
 
-	pre_m = male
-	#inititalize
+	#E-step
+	#inititalize the # when gender is missing
 	male, w_male, w_female, h_male, h_female = 0,0,0,0,0
 	n_w_m = (p_wm * p_male) / ((p_wm * p_male) + (p_wf * (1-p_male)))
 	n_h_m = (p_hm * p_male) / ((p_hm * p_male) + (p_hf * (1-p_male)))
 	n_w_f = (p_wf * (1-p_male)) / (p_wf * (1-p_male) + p_wm * p_male)
 	n_h_f = (p_hf * (1-p_male)) / (p_hf * (1-p_male) + p_hm * p_male)
+	#Counting thru the file
 	for i in b:
 		if i[0] == '0':
 			male += 1
@@ -76,29 +77,25 @@ while(improvement > 0.0001):
 				else:
 					male += g_11
 
-	female = 200 - male
+	#M-Step:
 	#updating for following probs:
+	female = 200 - male
 	p_male = male/(200)
 	p_wm = w_male/(male)
 	p_wf = w_female/(female)
 	p_hm = h_male/(male)
 	p_hf = h_female/(female)
-
+	#store previous likelihood in order to compare
 	temp = likelihood
 	likelihood = log10(male)*log10(female)+log10(p_wm*male)*log10((1-p_wm)*male)+log10(p_wf*female)*log10((1-p_wf)*female)+log10(p_hm*male)*log10((1-p_hm)*male)+log10(p_hf*female)*log10((1-p_hf)*female) 
-	#updating for following probs
+	#updating for following #
 	g_00 = (p_male * p_wm * p_hm )/((p_male * p_wm * p_hm )+((1 - p_male ) * p_wf * p_hf ))
-
 	g_01 = (p_male * p_wm * ( 1 - p_hm ))/((p_male * p_wm * ( 1 - p_hm )) +((1 - p_male) * p_wf * (1 - p_hf)))
-
 	g_10 = (p_male * (1 - p_wm) * p_hm )/((p_male * (1 - p_wm) * p_hm )+((1 - p_male) * (1 - p_wf) * p_hf))
-
 	g_11 = (p_male * (1 - p_wm) * (1 - p_hm))/(p_male * (1 - p_wm) * (1 - p_hm)+((1 - p_male) * (1 - p_wf) * (1 - p_hf)))
 
 	improvement = abs(temp - likelihood)
 
-	#print  male, female, w_male, h_male, w_female, h_female
-	#print p_male, p_wm, p_wf, p_hm, p_hf
 	print "P00: ",g_00
 	print "P01: ",g_01
 	print "P10: ",g_10
