@@ -1,23 +1,35 @@
 from __future__ import division
 from math import log10
-a = open("hw2dataset_10.txt")
+a = open("hw2dataset_70.txt")
 b = []
 for x in a:
 	if len(x) == 7:
 		b.append((x[0], x[2], x[4]))
 
 counter, improvement = 1, float('inf')
-#P(G | W, H)
-g_00, g_01, g_10, g_11 = 0.9158878505, 0.6666666667, 0.6447368421, 0.25
 #P(G), P(W | G), P(H | G)
-p_male ,p_wm, p_hm, p_wf, p_hf = 0.7, 0.8, 0.7, 0.4, 0.3	
+#p_male ,p_wm, p_hm, p_wf, p_hf = 0.6,0.7,0.6,0.5,0.4
+#p_male ,p_wm, p_hm, p_wf, p_hf = 0.99,0.99,0.99,0.01,0.01
+#p_male ,p_wm, p_hm, p_wf, p_hf = 0.01,0.01,0.01,0.99,0.99
+p_male ,p_wm, p_hm, p_wf, p_hf = 0.7,0.8,0.7,0.4,0.3
+
+g_00 = (p_male * p_wm * p_hm )/((p_male * p_wm * p_hm )+((1 - p_male ) * p_wf * p_hf ))
+
+g_01 = (p_male * p_wm * ( 1 - p_hm ))/((p_male * p_wm * ( 1 - p_hm )) +((1 - p_male) * p_wf * (1 - p_hf)))
+
+g_10 = (p_male * (1 - p_wm) * p_hm )/((p_male * (1 - p_wm) * p_hm )+((1 - p_male) * (1 - p_wf) * p_hf))
+
+g_11 = (p_male * (1 - p_wm) * (1 - p_hm))/(p_male * (1 - p_wm) * (1 - p_hm)+((1 - p_male) * (1 - p_wf) * (1 - p_hf)))
+
 #Counters
 #male: number of male
 #w_male: number of (weight, gender | weight)
 #h_male: same to above
-male, w_male, w_female, h_male, h_female = 0, 0, 0, 0, 0
+male, w_male, w_female, h_male, h_female = 200 * p_male, 0, 0, 0, 0
 
-while(improvement > 0.001):
+likelihood = 0
+
+while(improvement > 0.0001):
 	print counter
 	counter+=1
 
@@ -65,7 +77,6 @@ while(improvement > 0.001):
 					male += g_11
 
 	female = 200 - male
-	print  male, female, w_male, h_male, w_female, h_female
 	#updating for following probs:
 	p_male = male/(200)
 	p_wm = w_male/(male)
@@ -73,8 +84,8 @@ while(improvement > 0.001):
 	p_hm = h_male/(male)
 	p_hf = h_female/(female)
 
-	print p_male, p_wm, p_wf, p_hm, p_hf
-
+	temp = likelihood
+	likelihood = log10(male)*log10(female)+log10(p_wm*male)*log10((1-p_wm)*male)+log10(p_wf*female)*log10((1-p_wf)*female)+log10(p_hm*male)*log10((1-p_hm)*male)+log10(p_hf*female)*log10((1-p_hf)*female) 
 	#updating for following probs
 	g_00 = (p_male * p_wm * p_hm )/((p_male * p_wm * p_hm )+((1 - p_male ) * p_wf * p_hf ))
 
@@ -84,22 +95,22 @@ while(improvement > 0.001):
 
 	g_11 = (p_male * (1 - p_wm) * (1 - p_hm))/(p_male * (1 - p_wm) * (1 - p_hm)+((1 - p_male) * (1 - p_wf) * (1 - p_hf)))
 
+	improvement = abs(temp - likelihood)
 
+	#print  male, female, w_male, h_male, w_female, h_female
+	#print p_male, p_wm, p_wf, p_hm, p_hf
 	print "P00: ",g_00
 	print "P01: ",g_01
 	print "P10: ",g_10
 	print "P11: ",g_11
-	
 	print "P(Male): ", p_male
 	print "P(W|M): ", p_wm
-	print "P(W|F): ", p_wf
 	print "P(H|M): ", p_hm
+	print "P(W|F): ", p_wf
 	print "P(H|F): ", p_hf
-	print "P(G|H,F)", g_00
-
-	improvement = abs(male - pre_m)
-	print improvement
+	print "likelihood:", likelihood
+	print "Difference: ",improvement
 
 	#iteration limit check
-	if(counter > 100):
+	if(counter > 10000):
 		break
